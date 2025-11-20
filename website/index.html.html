@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concepcion Tourism</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+html, body { margin:0; padding:0; width:100%; height:100%; font-family:'Poppins',sans-serif; overflow:hidden; }
+
+/* Navigation */
+nav { width:100%; background:transparent; display:flex; justify-content:center; position:sticky; top:0; z-index:1000; padding:10px 0; }
+nav ul { list-style:none; display:flex; gap:32px; padding:0; margin:0; }
+nav li a { text-decoration:none; color:#fff; font-weight:600; padding:12px 16px; border-radius:8px; cursor:pointer; transition:0.3s; text-shadow:1px 1px 3px rgba(0,0,0,0.7);}
+nav li a:hover, nav li a.active { background-color: rgba(126,198,247,0.7); color:#2d3a4b; }
+
+/* Sections */
+section { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; transition:opacity 0.5s, visibility 0.5s; color:white; text-shadow:2px 2px 8px rgba(0,0,0,0.7); padding:20px; overflow-y:auto; }
+section.active { opacity:1; visibility:visible; z-index:1; }
+
+/* Backgrounds */
+#home { background:url('img/concepcion.jpg') no-repeat center center/cover; }
+#tourist { background:url('img/touristspotbackground.jpg') no-repeat center center/cover; }
+#about { background:url('img/backgroundcontact.jpg') no-repeat center center/cover; }
+#contact { background:url('img/backgroundcontact.jpg') no-repeat center center/cover; }
+
+/* Section text */
+section h1 { font-size:3em; margin-bottom:20px; }
+section p { font-size:1.3em; max-width:700px; line-height:1.8; }
+
+/* Tourist spots */
+.tourist-spots { display:flex; flex-wrap:wrap; gap:32px; justify-content:center; max-width:1200px; }
+.tourist-spot { width:230px; text-align:center; background:rgba(255,255,255,0.9); border-radius:18px; padding:12px; cursor:pointer; color:#2d3a4b; transition:transform 0.2s; }
+.tourist-spot img { width:100%; height:150px; object-fit:cover; border-radius:12px; }
+.tourist-spot figcaption { margin-top:8px; font-weight:600; }
+@media(max-width:700px){ .tourist-spot{width:90vw; max-width:320px;} .tourist-spot img{height:120px;} }
+
+/* Contact Links */
+#contact a { color:#fff; text-decoration:underline; font-weight:600; transition:0.3s; }
+#contact a:hover { color:#7ec6f7; text-shadow:0 0 8px rgba(126,198,247,0.9); }
+
+/* Image Overlay */
+#overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:2000; opacity:0; visibility:hidden; transition:0.4s; }
+#overlay.show { opacity:1; visibility:visible; }
+#overlay-img { width:80%; max-width:900px; max-height:90%; object-fit:cover; border-radius:12px; }
+#close-overlay { position:absolute; top:15px; right:20px; font-size:50px; color:white; cursor:pointer; }
+
+/* Settings Sidebar */
+#settings-toggle { position:fixed; top:20px; right:20px; width:50px; height:50px; background:#1063ce; color:white; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:24px; cursor:pointer; z-index:3000; }
+#sidebar-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); opacity:0; visibility:hidden; transition:0.3s; z-index:2000; }
+#settings-sidebar { position:fixed; top:0; right:-400px; width:400px; height:100%; background:rgba(255,255,255,0.2); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); color:#000; box-shadow:-4px 0 10px rgba(0,0,0,0.3); padding:20px; transition:right 0.4s; z-index:2500; overflow-y:auto; border-left:1px solid rgba(255,255,255,0.3); }
+
+/* Feedback Tabs */
+#settings-sidebar h2 { text-align:center; }
+.tab-buttons { display:flex; justify-content:space-around; margin-top:20px; }
+.tab-buttons button { padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:600; background:#1063ce; color:white; transition:0.3s; }
+.tab-buttons button.active { background:#7ec6f7; color:#2d3a4b; }
+#feedback-form, #feedback-inbox { margin-top:20px; }
+#feedback-form input, #feedback-form textarea { width:100%; border-radius:12px; padding:10px; border:1px solid #ccc; margin-bottom:8px; font-size:1em; }
+#feedback-form button { width:100%; padding:12px; background:#1063ce; color:white; border:none; border-radius:12px; font-weight:600; cursor:pointer; transition:0.3s; }
+#feedback-form button:hover { background:#7ec6f7; color:#2d3a4b; }
+
+/* Feedback Inbox */
+#feedback-inbox { display:none; }
+#feedback-inbox h3 { margin-bottom:10px; font-size:1.3em; color:#1063ce; text-align:center; }
+#mark-all-read { margin-bottom:12px; padding:10px; border:none; border-radius:8px; background:#1063ce; color:white; cursor:pointer; font-weight:600; width:100%; transition:0.3s; }
+#mark-all-read:hover { background:#7ec6f7; color:#2d3a4b; }
+#inbox-tabs { display:flex; justify-content:space-around; margin-bottom:10px; }
+#inbox-tabs button { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; background:#1063ce; color:white; transition:0.3s; }
+#inbox-tabs button.active { background:#7ec6f7; color:#2d3a4b; }
+#inbox-list { max-height:400px; overflow-y:auto; padding-right:8px; }
+
+/* Inbox card style */
+.inbox-card { border:1px solid #ccc; border-radius:12px; background:rgba(255,255,255,0.95); padding:12px; margin-bottom:12px; cursor:pointer; transition:0.2s; position:relative; }
+.inbox-card.unread { border-left:6px solid #f39c12; }
+.inbox-card:hover { transform:scale(1.02); box-shadow:0 6px 12px rgba(0,0,0,0.3); }
+.inbox-header { display:flex; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; font-weight:600; }
+.inbox-message { background:#f2f2f2; padding:10px; border-radius:8px; white-space:pre-wrap; }
+
+/* Delete button */
+.delete-btn {
+  position:absolute; top:10px; right:10px; background:transparent; border:none; cursor:pointer; font-size:20px; color:#e74c3c; transition:0.3s;
+}
+.delete-btn:hover { color:#c0392b; transform:scale(1.2); }
+
+/* Feedback Modal */
+#feedback-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:4000; opacity:0; visibility:hidden; transition:0.3s; }
+#feedback-modal.show { opacity:1; visibility:visible; }
+#modal-content { background:#fff; padding:20px; border-radius:12px; width:90%; max-width:500px; display:flex; flex-direction:column; gap:12px; position:relative; color:#2d3a4b; }
+#modal-content button { position:absolute; top:10px; right:10px; border:none; background:none; font-size:28px; cursor:pointer; color:#333; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <ul>
+    <li><a class="nav-link active" data-target="home">Home</a></li>
+    <li><a class="nav-link" data-target="tourist">Tourist Spots</a></li>
+    <li><a class="nav-link" data-target="about">About</a></li>
+    <li><a class="nav-link" data-target="contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Sections -->
+<section id="home" class="active"></section>
+<section id="tourist">
+  <div class="tourist-spots">
+    <figure class="tourist-spot" data-img="img/agho island.jpg">
+      <img src="img/agho island.jpg" alt="Agho Island">
+      <figcaption>Agho Island</figcaption>
+    </figure>
+  </div>
+</section>
+<section id="about">
+  <h1>About Concepcion</h1>
+  <p>Concepcion, Iloilo is a charming coastal town with pristine beaches, clear waters, and scenic islands. Friendly locals and beautiful sunsets make it a must-visit.</p>
+</section>
+<section id="contact">
+  <h1>Contact Us</h1>
+  <p>
+    📞 <a href="tel:09623170754">0962-317-0754 (SMART)</a> | 
+    <a href="tel:09952325783">0995-232-5783 (GLOBE)</a><br><br>
+    ✉ <a href="mailto:concepciontravelandtours@gmail.com">concepciontravelandtours@gmail.com</a><br><br>
+    🌐 <a href="https://facebook.com/concepciontravelandtours" target="_blank">facebook.com/concepciontravelandtours</a>
+  </p>
+</section>
+
+<!-- Overlay for images -->
+<div id="overlay">
+  <span id="close-overlay">&times;</span>
+  <img id="overlay-img">
+</div>
+
+<!-- Settings Sidebar -->
+<div id="settings-toggle">⚙️</div>
+<div id="settings-sidebar">
+  <h2>Settings</h2>
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="feedback-form">Feedback</button>
+    <button class="tab-btn" data-tab="feedback-inbox">Inbox</button>
+  </div>
+
+  <!-- Feedback Form -->
+  <div id="feedback-form">
+    <h3>Feedback Form</h3>
+    <input type="text" id="feedback-name" placeholder="Your Name">
+    <input type="text" id="feedback-beach" placeholder="Beach From">
+    <input type="number" id="feedback-rating" placeholder="Rating 1-5" min="1" max="5">
+    <textarea id="feedback-text" placeholder="Write your message..."></textarea>
+    <button id="submit-feedback">Submit</button>
+  </div>
+
+  <!-- Feedback Inbox -->
+  <div id="feedback-inbox">
+    <h3>Feedback Inbox</h3>
+    <div id="inbox-tabs">
+      <button class="inbox-tab active" data-tab="unread">Unread</button>
+      <button class="inbox-tab" data-tab="read">Read</button>
+    </div>
+    <button id="mark-all-read">Mark All Read</button>
+    <div id="inbox-list"></div>
+  </div>
+</div>
+<div id="sidebar-overlay"></div>
+
+<!-- Feedback Modal -->
+<div id="feedback-modal">
+  <div id="modal-content">
+    <button id="close-modal">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// Navigation
+const links=document.querySelectorAll('.nav-link');
+const sections=document.querySelectorAll('section');
+links.forEach(link=>{ link.addEventListener('click',()=>{ links.forEach(l=>l.classList.remove('active')); link.classList.add('active'); sections.forEach(s=>s.classList.remove('active')); document.getElementById(link.dataset.target).classList.add('active'); }); });
+
+// Image Overlay
+const figures=document.querySelectorAll('.tourist-spot');
+const overlay=document.getElementById('overlay');
+const overlayImg=document.getElementById('overlay-img');
+const closeBtn=document.getElementById('close-overlay');
+figures.forEach(fig=>{ fig.addEventListener('click',()=>{ overlayImg.src=fig.dataset.img; overlay.classList.add('show'); }); });
+closeBtn.onclick=()=>overlay.classList.remove('show');
+overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('show'); };
+
+// Settings Sidebar
+const toggle=document.getElementById('settings-toggle');
+const sidebar=document.getElementById('settings-sidebar');
+const overlaySidebar=document.getElementById('sidebar-overlay');
+toggle.addEventListener('click',()=>{ sidebar.style.right='0'; overlaySidebar.style.opacity='1'; overlaySidebar.style.visibility='visible'; });
+overlaySidebar.addEventListener('click',()=>{ sidebar.style.right='-400px'; overlaySidebar.style.opacity='0'; overlaySidebar.style.visibility='hidden'; });
+
+// Feedback Tabs
+const tabButtons=document.querySelectorAll('.tab-btn');
+const feedbackForm=document.getElementById('feedback-form');
+const feedbackInbox=document.getElementById('feedback-inbox');
+tabButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ tabButtons.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); feedbackForm.style.display='none'; feedbackInbox.style.display='none'; document.getElementById(btn.dataset.tab).style.display='block'; }); });
+
+// Inbox Tabs
+const inboxTabs=document.querySelectorAll('.inbox-tab');
+let currentTab='unread';
+inboxTabs.forEach(tab=>{ tab.addEventListener('click',()=>{ inboxTabs.forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentTab=tab.dataset.tab; loadFeedbacks(); }); });
+
+// Feedback System
+const nameInput=document.getElementById('feedback-name');
+const beachInput=document.getElementById('feedback-beach');
+const ratingInput=document.getElementById('feedback-rating');
+const feedbackText=document.getElementById('feedback-text');
+const submitBtn=document.getElementById('submit-feedback');
+const inboxList=document.getElementById('inbox-list');
+const markAllBtn=document.getElementById('mark-all-read');
+
+function loadFeedbacks(){
+  inboxList.innerHTML='';
+  const feedbacks=JSON.parse(localStorage.getItem('feedbacks')||'[]');
+  const filtered=feedbacks.filter(fb=> currentTab==='unread'? !fb.read : fb.read );
+  if(filtered.length===0){ inboxList.innerHTML='<p>No feedback.</p>'; return; }
+  filtered.forEach(fb=>{
+    const div=document.createElement('div');
+    div.className='inbox-card'+(fb.read?'':' unread');
+    div.innerHTML=`
+      <div class="inbox-header">
+        <span><strong>${fb.name||'Anonymous'}</strong></span>
+        <span>Rating: ${fb.rating||'-'}⭐</span>
+        <span>Beach: ${fb.beach||'-'}</span>
+        <span>${fb.time}</span>
+      </div>
+      <div class="inbox-message">${fb.text}</div>
+      <button class="delete-btn">🗑️</button>`;
+    div.querySelector('.delete-btn').onclick=e=>{
+      e.stopPropagation(); const index=feedbacks.indexOf(fb); if(index>-1){ feedbacks.splice(index,1); localStorage.setItem('feedbacks',JSON.stringify(feedbacks)); loadFeedbacks(); }
+    };
+    div.onclick=()=>{
+      fb.read=true;
+      localStorage.setItem('feedbacks',JSON.stringify(feedbacks));
+      showModal(fb);
+      loadFeedbacks();
+    };
+    inboxList.appendChild(div);
+  });
+}
+
+// Submit Feedback
+submitBtn.onclick=()=>{
+  const name=nameInput.value.trim();
+  const beach=beachInput.value.trim();
+  const rating=ratingInput.value.trim();
+  const text=feedbackText.value.trim();
+  if(!text) return;
+  const feedbacks=JSON.parse(localStorage.getItem('feedbacks')||'[]');
+  const time=new Date().toLocaleString();
+  feedbacks.push({name,beach,rating,text,time,read:false});
+  localStorage.setItem('feedbacks',JSON.stringify(feedbacks));
+  nameInput.value=''; beachInput.value=''; ratingInput.value=''; feedbackText.value='';
+  loadFeedbacks();
+}
+
+// Mark All Read
+markAllBtn.onclick=()=>{
+  const feedbacks=JSON.parse(localStorage.getItem('feedbacks')||'[]');
+  feedbacks.forEach(fb=>fb.read=true);
+  localStorage.setItem('feedbacks',JSON.stringify(feedbacks));
+  loadFeedbacks();
+}
+
+// Feedback Modal
+const modal=document.getElementById('feedback-modal');
+const modalBody=document.getElementById('modal-body');
+const closeModal=document.getElementById('close-modal');
+function showModal(fb){
+  modalBody.innerHTML=`<div class="inbox-header">
+      <span><strong>${fb.name||'Anonymous'}</strong></span>
+      <span>Rating: ${fb.rating||'-'}⭐</span>
+      <span>Beach: ${fb.beach||'-'}</span>
+      <span>${fb.time}</span>
+    </div>
+    <div class="inbox-message">${fb.text}</div>`;
+  modal.classList.add('show');
+}
+closeModal.onclick=()=> modal.classList.remove('show');
+modal.onclick=e=>{ if(e.target===modal) modal.classList.remove('show'); }
+
+loadFeedbacks();
+</script>
+</body>
+</html>
